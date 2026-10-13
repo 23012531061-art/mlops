@@ -1,0 +1,19 @@
+name: mlops-house-price
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.12
+  - pip
+  - numpy
+  - pandas
+  - scikit-learn
+  - joblib
+  - pytest
+  - pip:
+      - fastapi
+      - uvicorn[standard]
+      - pydantic
+      - httpx

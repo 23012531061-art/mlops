@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>House Price Predictor</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Main Container -->
+    <div class="page">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                HousePrice<span>AI</span>
+            </div>
+
+            <div class="status">
+                <span class="status-dot"></span>
+                API Ready
+            </div>
+        </header>
+
+
+        <!-- Main Content -->
+        <main class="main">
+
+            <!-- Left Section -->
+            <section class="intro">
+
+                <p class="tag">AI-POWERED PREDICTION</p>
+
+                <h1>
+                    Predict Your
+                    <span>House Price</span>
+                </h1>
+
+                <p class="description">
+                    Enter the details of your house and our machine
+                    learning model will estimate its market price.
+                </p>
+
+                <div class="features">
+
+                    <div class="feature">
+                        <div class="feature-icon">01</div>
+                        <div>
+                            <h3>Enter Details</h3>
+                            <p>Provide basic house information.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">02</div>
+                        <div>
+                            <h3>AI Prediction</h3>
+                            <p>Our trained ML model processes your data.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">03</div>
+                        <div>
+                            <h3>Get Estimate</h3>
+                            <p>Receive an estimated house price instantly.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Prediction Card -->
+            <section class="prediction-card">
+
+                <div class="card-header">
+                    <h2>House Details</h2>
+                    <p>Enter the property information below</p>
+                </div>
+
+
+                <form id="predictionForm">
+
+                    <!-- Area -->
+                    <div class="form-group">
+                        <label for="area">
+                            Area
+                            <span>(sq ft)</span>
+                        </label>
+
+                        <input
+                            type="number"
+                            id="area"
+                            name="area"
+                            placeholder="e.g. 1500"
+                            min="1"
+                            required
+                        >
+                    </div>
+
+
+                    <!-- Bedrooms -->
+                    <div class="form-group">
+                        <label for="bedrooms">
+                            Bedrooms
+                        </label>
+
+                        <input
+                            type="number"
+                            id="bedrooms"
+                            name="bedrooms"
+                            placeholder="e.g. 3"
+                            min="1"
+                            required
+                        >
+                    </div>
+
+
+                    <!-- Bathrooms -->
+                    <div class="form-group">
+                        <label for="bathrooms">
+                            Bathrooms
+                        </label>
+
+                        <input
+                            type="number"
+                            id="bathrooms"
+                            name="bathrooms"
+                            placeholder="e.g. 2"
+                            min="1"
+                            required
+                        >
+                    </div>
+
+
+                    <!-- Age -->
+                    <div class="form-group">
+                        <label for="age">
+                            House Age
+                            <span>(years)</span>
+                        </label>
+
+                        <input
+                            type="number"
+                            id="age"
+                            name="age"
+                            placeholder="e.g. 10"
+                            min="0"
+                            required
+                        >
+                    </div>
+
+
+                    <!-- Submit -->
+                    <button
+                        type="submit"
+                        id="predictButton"
+                    >
+                        Predict House Price
+                        <span class="arrow">→</span>
+                    </button>
+
+                </form>
+
+
+                <!-- Loading -->
+                <div
+                    id="loading"
+                    class="loading hidden"
+                >
+                    <div class="spinner"></div>
+                    <p>Calculating prediction...</p>
+                </div>
+
+
+                <!-- Result -->
+                <div
+                    id="result"
+                    class="result hidden"
+                >
+                    <p class="result-label">
+                        ESTIMATED HOUSE PRICE
+                    </p>
+
+                    <h2 id="prediction">
+                        ₹ 0
+                    </h2>
+
+                    <p class="result-note">
+                        Prediction generated by the ML model
+                    </p>
+                </div>
+
+
+                <!-- Error -->
+                <div
+                    id="error"
+                    class="error hidden"
+                >
+                    Unable to connect to the prediction API.
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>
+                HousePriceAI · Machine Learning Prediction System
+            </p>
+
+            <p>
+                Powered by FastAPI & Scikit-learn
+            </p>
+        </footer>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>

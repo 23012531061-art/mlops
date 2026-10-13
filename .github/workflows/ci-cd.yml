@@ -1,0 +1,165 @@
+name: ML API CI/CD
+
+on:
+  push:
+    branches: [main]
+
+  pull_request:
+    branches: [main]
+
+
+env:
+  IMAGE_NAME: house-price-api
+
+
+jobs:
+
+  # =========================================================
+  # JOB 1: TEST
+  # =========================================================
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+
+      - name: Train model
+        run: |
+          python model/train.py
+
+
+      - name: Run tests
+        run: |
+          pytest -q
+
+
+  # =========================================================
+  # JOB 2: BUILD AND PUSH DOCKER IMAGE
+  # =========================================================
+
+  build-and-push:
+
+    needs: test
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+
+      - name: Install ML dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy scikit-learn joblib
+
+
+      - name: Train model artifact
+        run: |
+          python model/train.py
+
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+
+  # =========================================================
+  # JOB 3: DEPLOY TO EC2 K3S
+  # =========================================================
+
+  deploy:
+
+    needs: build-and-push
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Deploy to EC2 Kubernetes
+        uses: appleboy/ssh-action@v1.2.2
+
+        env:
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+        with:
+
+          host: ${{ secrets.EC2_HOST }}
+
+          username: ${{ secrets.EC2_USERNAME }}
+
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          envs: IMAGE
+
+          script: |
+
+            set -e
+
+            echo "Starting deployment..."
+
+            cd ~/k8s
+
+            echo "Applying Kubernetes Service..."
+
+            sudo k3s kubectl apply -f service.yaml
+
+            echo "Updating Deployment image..."
+
+            sed "s#DOCKERHUB_USERNAME/house-price-api:latest#$IMAGE#g" \
+              deployment.yaml | sudo k3s kubectl apply -f -
+
+            echo "Waiting for rollout..."
+
+            sudo k3s kubectl rollout status deployment/house-price-api --timeout=180s
+
+            echo "Deployment completed."
+
+            echo "Pods:"
+
+            sudo k3s kubectl get pods
+
+            echo "Services:"
+
+            sudo k3s kubectl get service house-price-service
